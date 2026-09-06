@@ -126,6 +126,7 @@ Targeted alerts notifying users of mentions, status changes, assignments, and ri
 - Chunk 1 complete — Next.js 14 App Router scaffolded in TypeScript strict mode with Tailwind CSS, ESLint, Prettier, Prisma client singleton and PostgreSQL datasource, folder architecture (app, components/ui, components/features, lib, types), GET /api/health route handler, and passing Vitest test suite. (Deviation: A minimal SystemHealth placeholder model was included in schema.prisma to enable Prisma Client generation ahead of Chunk 2 domain modeling).
 - Chunk 2 complete — Implemented full production Prisma schema across all 11 entities (User, Workspace, WorkspaceMember, Project, ProjectMember, Task, Label, TaskLabel, Comment, ActivityEvent, Notification). Removed temporary SystemHealth model completely and updated /api/health to query domain models. Implemented enums for roles, statuses, priorities, visibility, and audit actions. Applied migration `20260906123049_init_domain_schema` to PostgreSQL. Authored and executed `prisma/seed.ts` populating 6 demo users, 2 multi-tenant workspaces, 7 projects, 117 realistic tasks with varied due dates/assignees/labels, threaded comments, audit activity events, and notifications. Confirmed data population via Prisma Studio (HTTP 200) and automated Vitest suite.
   - _Schema refinements noted:_ Added `taskNumber` (Int) + `@@unique([projectId, taskNumber])` to generate monotonic project-scoped keys (e.g. `CORE-12`); added `estimatedHours` and `actualHours` to Task; added `isEdited` to Comment; added `readAt` to Notification; added `ProjectVisibility` and `WorkspaceInvitationStatus` enums for future RBAC and team invitation workflows.
+- Chunk 3 complete — Implemented production-quality custom JWT authentication. Added `RefreshToken` model via migration `20260906123430_add_refresh_token` for server-side token revocation and rotation. Created `/api/auth/register`, `/api/auth/login`, `/api/auth/refresh`, `/api/auth/logout`, and `/api/auth/me` with Zod validation, bcrypt password hashing, and secure httpOnly cookies. Implemented `getCurrentUser()` server-side helper verifying JWT signature and expiry. Configured Edge-compatible `middleware.ts` guarding `/app/*` routes and redirecting authenticated users away from `/login` and `/register`. Built responsive client pages for `/login`, `/register`, and `/app` session dashboard with loading states and error handling. Verified test coverage with 11 passing Vitest tests.
 
 ---
 
@@ -173,3 +174,41 @@ All future chunks must strictly follow this folder organization:
 - `types/`: Global TypeScript interfaces, database entity types, and utility types.
 - `prisma/`: Prisma schema (`schema.prisma`), migrations, and database seed harnesses.
 - `tests/`: Vitest unit and integration test suites.
+
+---
+
+## 9. Authentication & Session Strategy Reference
+
+- **Cookie Names:**
+  - `syncora_access_token`: Short-lived JWT access token.
+    - **Expiry:** 15 minutes (`ACCESS_TOKEN_MAX_AGE = 900` seconds).
+    - **Payload:** `{ sub: string, email: string, name: string, iat: number, exp: number }`.
+  - `syncora_refresh_token`: Longer-lived JWT refresh token with unique `jti`.
+    - **Expiry:** 7 days (`REFRESH_TOKEN_MAX_AGE = 604800` seconds).
+    - **Payload:** `{ sub: string, email: string, name: string, jti: string, iat: number, exp: number }`.
+- **Cookie Security Options:**
+  - `httpOnly: true` (inaccessible to browser JavaScript / XSS protection).
+  - `secure: process.env.NODE_ENV === "production"` (enforced HTTPS in production).
+  - `sameSite: "lax"` (CSRF defense while supporting top-level navigation).
+  - `path: "/"`.
+- **Token Invalidation & Rotation Flow:**
+  - Refresh tokens are hashed via SHA-256 (`tokenHash`) and stored in the database `RefreshToken` model.
+  - When `POST /api/auth/refresh` is invoked, the incoming token is verified and matched against the database. If valid, the old record is set to `revoked: true` and a new token pair is issued and persisted.
+  - When `POST /api/auth/logout` is called, the matching DB token record is revoked and both browser cookies are cleared (`maxAge: 0`).
+- **Single Source of Truth for Session User:**
+  - Use `getCurrentUser()` from `@/lib/auth` across all Server Components, Route Handlers, and Server Actions.
+  - Returns `SafeUser` (`{ id, email, name, avatarUrl, createdAt }`) or `null`.
+  - In route handlers or tests, pass the `Request` instance (`getCurrentUser(request)`) for explicit cookie header extraction.
+
+---
+
+## 10. WorkspaceRole Hierarchy & Authorization Reference
+
+For RBAC checks in Chunk 4 and subsequent authorization layers, the strict privilege ordering is:
+
+$$\text{VIEWER (1)} < \text{MEMBER (2)} < \text{ADMIN (3)} < \text{OWNER (4)}$$
+
+- **`VIEWER` (Level 1):** Read-only visibility into workspace projects, tasks, and members.
+- **`MEMBER` (Level 2):** Standard contributor. Can create and edit tasks, comments, and task labels within assigned or public projects.
+- **`ADMIN` (Level 3):** Management tier. Can create projects, invite new members, change member roles (up to Admin), and modify project settings.
+- **`OWNER` (Level 4):** Root organization authority. Can manage workspace billing, transfer ownership, delete workspace, and administer all roles.

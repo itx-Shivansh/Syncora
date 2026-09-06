@@ -110,9 +110,26 @@ model User {
   activityEvents         ActivityEvent[]    @relation("ActorUser")
   notifications          Notification[]     @relation("NotificationRecipient")
   triggeredNotifications Notification[]     @relation("NotificationActor")
+  refreshTokens          RefreshToken[]
 
   @@index([email])
 }
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  revoked   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([tokenHash])
+}
+
 
 model Workspace {
   id        String   @id @default(uuid())

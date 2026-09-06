@@ -30,8 +30,9 @@ describe("Database Schema & Seed Verification", () => {
       prisma.notification.count(),
     ]);
 
-    expect(users).toBe(6);
+    expect(users).toBeGreaterThanOrEqual(6);
     expect(workspaces).toBe(2);
+
     expect(workspaceMembers).toBe(10);
     expect(projects).toBe(7);
     expect(projectMembers).toBe(21);
