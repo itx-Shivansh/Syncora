@@ -1,0 +1,18 @@
+// Prisma schema configuration for Syncora
+// Docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// Minimal system model to initialize Prisma Client prior to domain entities in Chunk 2
+model SystemHealth {
+  id        String   @id @default(uuid())
+  checkedAt DateTime @default(now())
+}
