@@ -7,8 +7,9 @@ export async function GET() {
   const startTime = Date.now();
 
   try {
-    // Ping PostgreSQL to verify active connection
+    // Execute lightweight raw query and query domain model count
     await prisma.$queryRaw`SELECT 1`;
+    const workspaceCount = await prisma.workspace.count();
     const latencyMs = Date.now() - startTime;
 
     return NextResponse.json(
@@ -19,6 +20,7 @@ export async function GET() {
         database: {
           status: "connected",
           latencyMs,
+          workspaces: workspaceCount,
         },
       },
       { status: 200 }

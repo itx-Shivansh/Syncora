@@ -124,6 +124,8 @@ Targeted alerts notifying users of mentions, status changes, assignments, and ri
 
 - Chunk 0 complete — architecture defined.
 - Chunk 1 complete — Next.js 14 App Router scaffolded in TypeScript strict mode with Tailwind CSS, ESLint, Prettier, Prisma client singleton and PostgreSQL datasource, folder architecture (app, components/ui, components/features, lib, types), GET /api/health route handler, and passing Vitest test suite. (Deviation: A minimal SystemHealth placeholder model was included in schema.prisma to enable Prisma Client generation ahead of Chunk 2 domain modeling).
+- Chunk 2 complete — Implemented full production Prisma schema across all 11 entities (User, Workspace, WorkspaceMember, Project, ProjectMember, Task, Label, TaskLabel, Comment, ActivityEvent, Notification). Removed temporary SystemHealth model completely and updated /api/health to query domain models. Implemented enums for roles, statuses, priorities, visibility, and audit actions. Applied migration `20260906123049_init_domain_schema` to PostgreSQL. Authored and executed `prisma/seed.ts` populating 6 demo users, 2 multi-tenant workspaces, 7 projects, 117 realistic tasks with varied due dates/assignees/labels, threaded comments, audit activity events, and notifications. Confirmed data population via Prisma Studio (HTTP 200) and automated Vitest suite.
+  - _Schema refinements noted:_ Added `taskNumber` (Int) + `@@unique([projectId, taskNumber])` to generate monotonic project-scoped keys (e.g. `CORE-12`); added `estimatedHours` and `actualHours` to Task; added `isEdited` to Comment; added `readAt` to Notification; added `ProjectVisibility` and `WorkspaceInvitationStatus` enums for future RBAC and team invitation workflows.
 
 ---
 
