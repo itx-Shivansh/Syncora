@@ -33,6 +33,16 @@ In high-concurrency serverless environments, Next.js route handlers and server a
 
 After signing in with the demo account, a reviewer lands on a fully populated Acme workspace dashboard that already reads like a real operating command center: the high-priority "Launch Recovery Sprint" is visibly at risk, workload concentration is surfaced as a bottleneck, notifications and activity feed entries are already populated, and the project cards use meaningful labels and due-date pressure to tell a believable operational story without any manual setup.
 
+### Production Deployment
+
+- **Live URL:** [https://syncora-sr-codez.vercel.app](https://syncora-sr-codez.vercel.app)
+- **Source:** GitHub repository `itx-Shivansh/Syncora`, connected to the Vercel project `sr-codez/syncora` for production deployments from `main`.
+- **Application hosting:** Vercel hosts the Next.js 14 App Router application and serverless API route handlers.
+- **Database hosting:** Neon PostgreSQL is provisioned through the Vercel Marketplace integration and connected to the Vercel project. Runtime queries use the pooled `DATABASE_URL`; Prisma migration commands use the non-pooling `DIRECT_URL`.
+- **Authentication configuration:** Production uses a generated `JWT_SECRET`. Auth cookies are `httpOnly`, `secure` when `NODE_ENV=production`, `SameSite=Lax`, and scoped to `/`; no cookie domain override is used, so cookies are correctly host-only for the Vercel domain.
+- **Release flow:** `prisma migrate deploy` applies committed migrations to Neon, `prisma/seed.ts` resets and repopulates the demo dataset, and Vercel runs the successful `npm run build` deployment pipeline.
+- **Production verification:** The live homepage, registration, workspace creation, project creation, task creation, task reorder (`TODO` -> `IN_PROGRESS`), logout, demo login, dashboard health cards, notifications, and grounded AI project-health query were exercised against the deployed domain.
+
 ---
 
 ## 3. Conceptual Entity & Data Model
@@ -833,5 +843,4 @@ During development, several user-facing bugs occurred despite passing test suite
 
 5. **Kanban Horizontal Scroll Edge-Fade:**
    - Enhanced dynamic gradient masks (`w-14 bg-gradient-to-r from-background via-background/80 to-transparent` and `bg-gradient-to-l`) tracked via `ResizeObserver` on the Kanban scroll container, providing clear visual affordance when columns extend beyond the active viewport.
-
 
