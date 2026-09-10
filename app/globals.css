@@ -2,24 +2,268 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #09090b;
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #09090b;
-    --foreground: #fafafa;
+    /* Base Light Theme */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 243 75% 59%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 239 84% 67%;
+
+    /* Status Colors (Light Mode) */
+    --status-backlog-bg: 215 16% 93%;
+    --status-backlog-fg: 215 16% 40%;
+    --status-backlog-border: 215 16% 85%;
+
+    --status-todo-bg: 199 89% 95%;
+    --status-todo-fg: 199 89% 36%;
+    --status-todo-border: 199 89% 82%;
+
+    --status-inprogress-bg: 45 93% 94%;
+    --status-inprogress-fg: 38 92% 35%;
+    --status-inprogress-border: 45 93% 80%;
+
+    --status-inreview-bg: 270 95% 96%;
+    --status-inreview-fg: 271 91% 45%;
+    --status-inreview-border: 270 95% 85%;
+
+    --status-done-bg: 142 76% 94%;
+    --status-done-fg: 142 72% 29%;
+    --status-done-border: 142 76% 80%;
+
+    --status-cancelled-bg: 0 84% 96%;
+    --status-cancelled-fg: 0 72% 42%;
+    --status-cancelled-border: 0 84% 85%;
+
+    /* Priority Colors (Light Mode) */
+    --priority-low-bg: 220 14% 94%;
+    --priority-low-fg: 220 14% 42%;
+    --priority-low-border: 220 14% 86%;
+
+    --priority-medium-bg: 214 95% 94%;
+    --priority-medium-fg: 217 91% 40%;
+    --priority-medium-border: 214 95% 82%;
+
+    --priority-high-bg: 24 95% 94%;
+    --priority-high-fg: 24 95% 40%;
+    --priority-high-border: 24 95% 82%;
+
+    --priority-urgent-bg: 0 86% 94%;
+    --priority-urgent-fg: 0 84% 45%;
+    --priority-urgent-border: 0 86% 82%;
+  }
+
+  /* Dark Theme (Default brand experience) */
+  .dark,
+  :root {
+    /* Surface Elevation Scale (Dark Theme) */
+    --background: 240 10% 3.6%;       /* Level 0: Deep Obsidian Canvas (#08080b) */
+    --surface-base: 240 10% 3.6%;
+    --surface-sidebar: 240 9% 5.8%;    /* Level 1: Sidebar & Persistent Navigation (#0e0e12) */
+    --foreground: 0 0% 98%;           /* Crisp text */
+
+    --card: 240 8% 8.5%;               /* Level 2: Primary Content Cards & Panels (#14141a) */
+    --card-foreground: 0 0% 98%;
+    --surface-card: 240 8% 8.5%;
+
+    --surface-nested: 240 7% 11.8%;    /* Level 3: Inner stat blocks & Kanban cards (#1b1b24) */
+    --surface-hover: 240 7% 14.5%;     /* Level 4: Hover / Elevated interaction (#22222d) */
+
+    --popover: 240 9% 6.5%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 239 84% 67%; /* #6366f1 electric violet */
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 243 75% 59%;
+
+    --secondary: 240 6% 12.5%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 67%;  /* lifted for WCAG AA compliance */
+
+    --accent: 240 6% 16%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5% 15%; /* subtle borders supplemented by surface elevation */
+    --input: 240 5% 15%;
+    --ring: 239 84% 67%;
+
+    /* Status Colors (Dark Mode) */
+    --status-backlog-bg: 215 16% 14%;
+    --status-backlog-fg: 215 20% 75%;
+    --status-backlog-border: 215 16% 25%;
+
+    --status-todo-bg: 199 89% 12%;
+    --status-todo-fg: 199 89% 65%;
+    --status-todo-border: 199 89% 25%;
+
+    --status-inprogress-bg: 45 93% 12%;
+    --status-inprogress-fg: 45 93% 65%;
+    --status-inprogress-border: 45 93% 25%;
+
+    --status-inreview-bg: 270 95% 14%;
+    --status-inreview-fg: 270 95% 75%;
+    --status-inreview-border: 270 95% 30%;
+
+    --status-done-bg: 142 76% 12%;
+    --status-done-fg: 142 76% 65%;
+    --status-done-border: 142 76% 25%;
+
+    --status-cancelled-bg: 0 84% 14%;
+    --status-cancelled-fg: 0 84% 70%;
+    --status-cancelled-border: 0 84% 28%;
+
+    /* Priority Colors (Dark Mode) */
+    --priority-low-bg: 220 14% 14%;
+    --priority-low-fg: 220 14% 70%;
+    --priority-low-border: 220 14% 24%;
+
+    --priority-medium-bg: 214 95% 14%;
+    --priority-medium-fg: 214 95% 70%;
+    --priority-medium-border: 214 95% 28%;
+
+    --priority-high-bg: 24 95% 14%;
+    --priority-high-fg: 24 95% 68%;
+    --priority-high-border: 24 95% 28%;
+
+    --priority-urgent-bg: 0 86% 15%;
+    --priority-urgent-fg: 0 86% 72%;
+    --priority-urgent-border: 0 86% 32%;
+  }
+
+  .light {
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+    --background: 210 40% 98%;
+    --surface-base: 210 40% 98%;
+    --surface-sidebar: 210 35% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --surface-card: 0 0% 100%;
+    --surface-nested: 210 30% 96%;
+    --surface-hover: 210 30% 94%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 239 84% 67%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 243 75% 59%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222 47% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222 47% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 239 84% 67%;
   }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family:
-    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Fira Sans",
-    "Droid Sans", "Helvetica Neue", sans-serif;
-  margin: 0;
-  padding: 0;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+/* Custom Scrollbar for Sleek Density */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* Glassmorphic Surfaces with Refined Elevation */
+.glass-panel {
+  background: rgba(14, 14, 18, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.5);
+}
+
+.glass-card {
+  background: rgba(20, 20, 26, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 2px 8px -2px rgba(0, 0, 0, 0.4), 0 1px 3px -1px rgba(0, 0, 0, 0.25);
+}
+
+.glass-dropdown {
+  background: rgba(15, 15, 20, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+}
+
+/* ────────────────────────────────────────────────────────────
+   prefers-reduced-motion
+   Disable all CSS animations & transitions for users who opted
+   out of motion on their OS/browser. Tailwind's motion-safe:
+   and motion-reduce: variants handle inline class-based cases;
+   this block covers global / third-party animation keyframes.
+──────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Tailwind animation utilities */
+  .animate-pulse,
+  .animate-ping,
+  .animate-spin,
+  .animate-bounce,
+  .animate-in,
+  .animate-out {
+    animation: none !important;
+  }
 }

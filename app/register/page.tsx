@@ -1,12 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
+  const [mounted, setMounted] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +25,10 @@ export default function RegisterPage() {
     general?: string;
   }>({});
   const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const validate = () => {
     const errs: typeof errors = {};
@@ -77,6 +87,7 @@ export default function RegisterPage() {
         return;
       }
 
+      queryClient.clear();
       router.push("/app");
       router.refresh();
     } catch {
@@ -87,39 +98,62 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-neutral-50 px-4 py-12 sm:px-6 lg:px-8 dark:bg-neutral-950">
-      <div className="w-full max-w-md space-y-8 rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <div>
-          <div className="flex items-center justify-center space-x-2">
-            <span className="h-6 w-6 rounded-md bg-neutral-900 dark:bg-white" />
-            <span className="text-xl font-bold tracking-tight text-neutral-900 dark:text-white">
-              Syncora
-            </span>
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-6">
+        {/* Brand Header */}
+        <div className="flex flex-col items-center text-center">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary shadow-glow">
+            <svg
+              className="h-6 w-6 text-primary-foreground"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2.5}
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
           </div>
-          <h2 className="mt-6 text-center text-2xl font-bold tracking-tight text-neutral-900 dark:text-white">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-neutral-600 dark:text-neutral-400">
-            Get your team in sync today.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">Syncora</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Keep work in sync.</p>
         </div>
 
-        {errors.general && (
-          <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900/50 dark:bg-red-950/30 dark:text-red-400">
-            {errors.general}
-          </div>
-        )}
+        <Card glass className="p-6 sm:p-8">
+          <CardHeader className="p-0 pb-6 text-center">
+            <CardTitle className="text-xl">Create your account</CardTitle>
+            <CardDescription className="text-xs">
+              Start orchestrating projects with precision and operational clarity
+            </CardDescription>
+          </CardHeader>
 
-        <form className="mt-8 space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="name"
-              className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              Full name
-            </label>
-            <div className="mt-1">
-              <input
+          {errors.general && (
+            <div className="mb-5 flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/15 p-3 text-xs text-destructive">
+              <svg
+                className="mt-0.5 h-4 w-4 shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>{errors.general}</span>
+            </div>
+          )}
+
+          <form
+            onSubmit={handleSubmit}
+            data-hydrated={mounted}
+            className="space-y-4"
+          >
+            <div className="space-y-1.5">
+              <label htmlFor="name" className="block text-xs font-medium text-foreground">
+                Full name
+              </label>
+              <Input
                 id="name"
                 name="name"
                 type="text"
@@ -127,28 +161,16 @@ export default function RegisterPage() {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className={`block w-full rounded-lg border px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 shadow-sm focus:outline-none focus:ring-2 dark:bg-neutral-800 dark:text-white ${
-                  errors.name
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                    : "border-neutral-300 focus:border-neutral-900 focus:ring-neutral-200 dark:border-neutral-700 dark:focus:border-white"
-                }`}
-                placeholder="Alex Chen"
+                error={errors.name}
+                placeholder="Alex Morgan"
               />
-              {errors.name && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.name}</p>
-              )}
             </div>
-          </div>
 
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              Email address
-            </label>
-            <div className="mt-1">
-              <input
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-xs font-medium text-foreground">
+                Email address
+              </label>
+              <Input
                 id="email"
                 name="email"
                 type="email"
@@ -156,28 +178,16 @@ export default function RegisterPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={`block w-full rounded-lg border px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 shadow-sm focus:outline-none focus:ring-2 dark:bg-neutral-800 dark:text-white ${
-                  errors.email
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                    : "border-neutral-300 focus:border-neutral-900 focus:ring-neutral-200 dark:border-neutral-700 dark:focus:border-white"
-                }`}
+                error={errors.email}
                 placeholder="alex@acme.dev"
               />
-              {errors.email && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.email}</p>
-              )}
             </div>
-          </div>
 
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              Password
-            </label>
-            <div className="mt-1">
-              <input
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="block text-xs font-medium text-foreground">
+                Password
+              </label>
+              <Input
                 id="password"
                 name="password"
                 type="password"
@@ -185,28 +195,19 @@ export default function RegisterPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`block w-full rounded-lg border px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 shadow-sm focus:outline-none focus:ring-2 dark:bg-neutral-800 dark:text-white ${
-                  errors.password
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                    : "border-neutral-300 focus:border-neutral-900 focus:ring-neutral-200 dark:border-neutral-700 dark:focus:border-white"
-                }`}
-                placeholder="Min. 8 chars, 1 letter, 1 number"
+                error={errors.password}
+                placeholder="At least 8 characters"
               />
-              {errors.password && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">{errors.password}</p>
-              )}
             </div>
-          </div>
 
-          <div>
-            <label
-              htmlFor="confirmPassword"
-              className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-            >
-              Confirm password
-            </label>
-            <div className="mt-1">
-              <input
+            <div className="space-y-1.5">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-xs font-medium text-foreground"
+              >
+                Confirm password
+              </label>
+              <Input
                 id="confirmPassword"
                 name="confirmPassword"
                 type="password"
@@ -214,41 +215,33 @@ export default function RegisterPage() {
                 required
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className={`block w-full rounded-lg border px-3 py-2 text-sm text-neutral-900 placeholder-neutral-400 shadow-sm focus:outline-none focus:ring-2 dark:bg-neutral-800 dark:text-white ${
-                  errors.confirmPassword
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-200"
-                    : "border-neutral-300 focus:border-neutral-900 focus:ring-neutral-200 dark:border-neutral-700 dark:focus:border-white"
-                }`}
-                placeholder="••••••••"
+                error={errors.confirmPassword}
+                placeholder="Repeat password"
               />
-              {errors.confirmPassword && (
-                <p className="mt-1 text-xs text-red-600 dark:text-red-400">
-                  {errors.confirmPassword}
-                </p>
-              )}
             </div>
-          </div>
 
-          <div className="pt-2">
-            <button
+            <Button
               type="submit"
               disabled={isLoading}
-              className="flex w-full justify-center rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-400 disabled:opacity-60 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
+              isLoading={isLoading}
+              className="mt-2 h-10 w-full font-medium"
             >
-              {isLoading ? "Creating account..." : "Create account"}
-            </button>
-          </div>
-        </form>
+              Create account
+            </Button>
+          </form>
 
-        <p className="text-center text-sm text-neutral-600 dark:text-neutral-400">
-          Already have an account?{" "}
-          <Link
-            href="/login"
-            className="font-medium text-neutral-900 underline hover:text-neutral-700 dark:text-white dark:hover:text-neutral-300"
-          >
-            Sign in
-          </Link>
-        </p>
+          <div className="mt-6 border-t border-border/50 pt-6 text-center">
+            <p className="text-xs text-muted-foreground">
+              Already have an account?{" "}
+              <Link
+                href="/login"
+                className="font-medium text-primary underline underline-offset-4 transition-colors hover:text-primary-hover"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
+        </Card>
       </div>
     </div>
   );

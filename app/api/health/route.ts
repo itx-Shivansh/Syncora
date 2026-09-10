@@ -26,6 +26,7 @@ export async function GET() {
       { status: 200 }
     );
   } catch (error) {
+    console.error("[health] Database connection error:", error);
     const latencyMs = Date.now() - startTime;
     return NextResponse.json(
       {
@@ -35,7 +36,7 @@ export async function GET() {
         database: {
           status: "disconnected",
           latencyMs,
-          error: error instanceof Error ? error.message : "Unknown database connection error",
+          error: "Database connection failed",
         },
       },
       { status: 503 }

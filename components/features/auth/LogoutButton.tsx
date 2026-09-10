@@ -2,9 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
+import { Button, type ButtonProps } from "@/components/ui/button";
 
-export function LogoutButton() {
+export function LogoutButton({
+  variant = "outline",
+  size = "sm",
+  className,
+}: {
+  variant?: ButtonProps["variant"];
+  size?: ButtonProps["size"];
+  className?: string;
+}) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
@@ -13,9 +24,11 @@ export function LogoutButton() {
       await fetch("/api/auth/logout", {
         method: "POST",
       });
+      queryClient.clear();
       router.push("/login");
       router.refresh();
     } catch {
+      queryClient.clear();
       router.push("/login");
     } finally {
       setIsLoggingOut(false);
@@ -23,12 +36,14 @@ export function LogoutButton() {
   };
 
   return (
-    <button
+    <Button
+      variant={variant}
+      size={size}
       onClick={handleLogout}
-      disabled={isLoggingOut}
-      className="inline-flex items-center justify-center rounded-lg border border-neutral-300 bg-white px-4 py-2 text-sm font-medium text-neutral-700 shadow-sm hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-neutral-400 disabled:opacity-50 dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-200 dark:hover:bg-neutral-700"
+      isLoading={isLoggingOut}
+      className={className ? `whitespace-nowrap ${className}` : "whitespace-nowrap"}
     >
       {isLoggingOut ? "Signing out..." : "Sign out"}
-    </button>
+    </Button>
   );
 }

@@ -33,6 +33,9 @@ export interface SafeUser {
  * Returns Uint8Array encoded secret for jose JWT signing and verification.
  */
 export function getJwtSecretKey(): Uint8Array {
+  if (process.env.NODE_ENV === "production" && !process.env.JWT_SECRET) {
+    throw new Error("CRITICAL_SECURITY_ERROR: JWT_SECRET environment variable is required in production.");
+  }
   const secret = process.env.JWT_SECRET || "syncora-development-jwt-secret-key-32-chars-long";
   return new TextEncoder().encode(secret);
 }

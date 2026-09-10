@@ -1,59 +1,160 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/auth";
-import { LogoutButton } from "@/components/features/auth/LogoutButton";
+import { prisma } from "@/lib/db";
+import { Button } from "@/components/ui/button";
+import { MyTasksSection } from "@/components/features/dashboard/MyTasksSection";
+import { ProjectsSection } from "@/components/features/dashboard/ProjectsSection";
+import { UpcomingSection } from "@/components/features/dashboard/UpcomingSection";
+import { ActivitySection } from "@/components/features/dashboard/ActivitySection";
+import { DashboardStatsBar } from "@/components/features/dashboard/DashboardStatsBar";
+import { WorkspaceAiAssistant } from "@/components/features/ai/WorkspaceAiAssistant";
 
 export const dynamic = "force-dynamic";
 
-export default async function AppPage() {
+export default async function DashboardPage() {
   const user = await getCurrentUser();
 
-  if (!user) {
-    redirect("/login");
+  // No session → redirect to login
+  if (!user) redirect("/login");
+
+  // Resolve the user's first active workspace membership to establish context.
+  // The workspace switcher in the app shell handles switching between workspaces.
+  const membership = await prisma.workspaceMember.findFirst({
+    where: { userId: user.id, status: "ACTIVE" },
+    include: {
+      workspace: {
+        select: { id: true, name: true, slug: true, plan: true },
+      },
+    },
+    orderBy: { workspace: { name: "asc" } },
+  });
+
+  // No workspace → onboard
+  if (!membership) {
+    redirect("/app/workspaces/new");
   }
 
+  const workspace = membership.workspace;
+  const today = new Date().toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
+  // Derive greeting by time of day
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8">
-      <div className="w-full max-w-lg space-y-6 rounded-2xl border border-neutral-200 bg-white p-8 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-        <div className="flex items-center justify-between border-b border-neutral-100 pb-4 dark:border-neutral-800">
-          <div className="flex items-center space-x-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-neutral-900 font-semibold text-white dark:bg-white dark:text-neutral-900">
-              {user.name.slice(0, 1).toUpperCase()}
-            </div>
-            <div>
-              <h1 className="text-base font-semibold text-neutral-900 dark:text-white">
-                {user.name}
-              </h1>
-              <p className="text-xs text-neutral-500 dark:text-neutral-400">
-                Logged in as {user.email}
-              </p>
-            </div>
-          </div>
-          <LogoutButton />
+    <div className="space-y-8">
+      {/* ── Greeting header ── */}
+      <div className="border-b border-border/40 pb-6">
+        <div className="mb-2 flex flex-wrap items-center gap-2">
+          <span className="rounded-full border border-primary/20 bg-primary/10 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
+            {workspace.name}
+          </span>
+          <span className="h-1 w-1 rounded-full bg-muted-foreground/30" />
+          <span className="text-xs text-muted-foreground">{today}</span>
         </div>
 
-        <div className="space-y-3 rounded-xl bg-neutral-50 p-4 text-xs dark:bg-neutral-800/50">
-          <div className="flex justify-between">
-            <span className="text-neutral-500 dark:text-neutral-400">User ID</span>
-            <span className="font-mono text-neutral-900 dark:text-white">{user.id}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-neutral-500 dark:text-neutral-400">Account Created</span>
-            <span className="text-neutral-900 dark:text-white">
-              {new Date(user.createdAt).toLocaleDateString()}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-neutral-500 dark:text-neutral-400">Status</span>
-            <span className="inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-medium text-emerald-800 dark:bg-emerald-950/50 dark:text-emerald-400">
-              Active Session
-            </span>
-          </div>
-        </div>
-
-        <p className="text-center text-xs text-neutral-400">
-          Syncora Core Architecture • Workspace onboarding and project engine coming in Chunk 4.
+        <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+          {greeting},{" "}
+          <span className="bg-gradient-to-r from-primary to-violet-400 bg-clip-text text-transparent">
+            {user.name.split(" ")[0]}
+          </span>
+          .
+        </h1>
+        <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+          Here&apos;s your command center — what&apos;s in motion, what needs attention, and
+          what&apos;s coming up.
         </p>
+
+        {/* Stats bar — client component shares TanStack Query cache with section components */}
+        <div className="mt-5">
+          <DashboardStatsBar workspaceId={workspace.id} userId={user.id} />
+        </div>
+
+        {/* Quick actions */}
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          <Link href="/app/projects">
+            <Button size="sm" variant="default">
+              <svg
+                className="mr-1.5 h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+                />
+              </svg>
+              Projects
+            </Button>
+          </Link>
+          <Link href="/app/tasks">
+            <Button size="sm" variant="outline">
+              <svg
+                className="mr-1.5 h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                />
+              </svg>
+              My Tasks
+            </Button>
+          </Link>
+          <Link href={`/app/workspaces/new`}>
+            <Button size="sm" variant="ghost">
+              <svg
+                className="mr-1.5 h-3.5 w-3.5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+              </svg>
+              New Workspace
+            </Button>
+          </Link>
+        </div>
       </div>
-    </main>
+
+      {/* ── Grounded AI Intelligence Assistant (Chunk 16) ── */}
+      <WorkspaceAiAssistant workspaceId={workspace.id} workspaceName={workspace.name} />
+
+      {/* ── Active projects overview ── */}
+      {/* Independent TanStack Query fetch — a slow query here never blocks other sections */}
+      <ProjectsSection workspaceId={workspace.id} userId={user.id} />
+
+      {/* ── Main two-column grid: My Tasks + Timeline / Activity ── */}
+      {/*
+        Layout:
+          [desktop] Left: My Tasks (2/3) | Right: two-column stack (Timeline top, Activity bottom)
+          [mobile]  Stacked: Projects → My Tasks → Timeline → Activity
+      */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        {/* My Tasks — spans 2 columns on large screens */}
+        <div className="lg:col-span-2">
+          <MyTasksSection workspaceId={workspace.id} userId={user.id} />
+        </div>
+
+        {/* Right column: Timeline + Activity stacked */}
+        <div className="flex flex-col gap-6">
+          <UpcomingSection workspaceId={workspace.id} userId={user.id} />
+          <ActivitySection workspaceId={workspace.id} userId={user.id} />
+        </div>
+      </div>
+    </div>
   );
 }
