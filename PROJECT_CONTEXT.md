@@ -35,7 +35,7 @@ After signing in with the demo account, a reviewer lands on a fully populated Ac
 
 ### Production Deployment
 
-- **Live URL:** [https://syncora-sr-codez.vercel.app](https://syncora-sr-codez.vercel.app)
+- **Live URL:** [https://syncora-sr-codez.vercel.app](https://syncora-sync.vercel.app)
 - **Source:** GitHub repository `itx-Shivansh/Syncora`, connected to the Vercel project `sr-codez/syncora` for production deployments from `main`.
 - **Application hosting:** Vercel hosts the Next.js 14 App Router application and serverless API route handlers.
 - **Database hosting:** Neon PostgreSQL is provisioned through the Vercel Marketplace integration and connected to the Vercel project. Runtime queries use the pooled `DATABASE_URL`; Prisma migration commands use the non-pooling `DIRECT_URL`.
