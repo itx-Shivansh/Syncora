@@ -15,7 +15,7 @@ The login page includes a "Use demo" shortcut so a reviewer can sign in instantl
 
 ## Production deployment
 
-Live app: [https://syncora-sr-codez.vercel.app](https://syncora-sr-codez.vercel.app)
+Live app: [https://syncora-sr-codez.vercel.app](https://syncora-sync.vercel.app)
 
 Syncora is deployed as a Next.js App Router application on Vercel, with Vercel Git integration connected to `itx-Shivansh/Syncora` on GitHub. Production serverless route handlers use Prisma against a Vercel Marketplace-provisioned Neon PostgreSQL database. Prisma migrations are applied with `prisma migrate deploy`, and the production Neon database is seeded with the documented demo account. Vercel Production, Preview, and Development environments include the pooled `DATABASE_URL`; `DIRECT_URL` is configured with Neon’s non-pooling connection for migration workflows; and each environment has a dedicated `JWT_SECRET`.
 
